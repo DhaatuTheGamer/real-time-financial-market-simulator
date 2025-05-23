@@ -35,11 +35,12 @@ pip install -r requirements.txt
 ```
 
 ### 4. Add Your Alpha Vantage API Key
-- Open `.env` and paste your API key:
-  ```
+- Create a `.env` file in the project root (if it doesn't exist) and add your API key:
+  ```env
   ALPHA_VANTAGE_API_KEY=your_api_key_here
   ```
-- [Get a free API key here.](https://www.alphavantage.co/support/#api-key)
+- **Important**: Ensure your `.env` file is listed in `.gitignore` (it should be by default) and never commit your API keys or other secrets to version control.
+- [Get a free API key here.](https://www.alphavantage.co/support/#api-key) The application loads this key from the environment.
 
 ---
 
@@ -62,7 +63,7 @@ streamlit run market_simulator/dashboard/streamlit_app.py
 - **Simulate Prices:** Set GBM parameters and click "Simulate/Run Backtest".
 - **Fetch Real Data:** Select "Alpha Vantage" as data source, enter a stock symbol, and fetch data.
 - **Test Strategies:** Choose a strategy, set its parameters, and view signals/backtest results.
-- **Real-Time Streaming:** Enable "Visualize Real-Time WebSocket Prices" to see live prices.
+- **Real-Time Streaming:** Enable "Visualize Real-Time WebSocket Prices" to see live prices. The dashboard will connect to the WebSocket server at `ws://localhost:8765` (or `wss://localhost:8765`). Note: The connection URI is fixed for security reasons.
 - **Export:** Download your results as CSV or JSON.
 
 ---
@@ -89,8 +90,8 @@ README.md
 
 ## Troubleshooting
 - **ModuleNotFoundError:** Always run commands from the project root directory.
-- **WebSocket Connection Issues:** Make sure the server is running before starting the stream in the dashboard.
-- **Alpha Vantage Errors:** Check your API key and internet connection.
+- **WebSocket Connection Issues:** Make sure the WebSocket server is running (via `python -m market_simulator.websocket_server`) before attempting to stream in the dashboard. The dashboard will only connect to `ws://localhost:8765` or `wss://localhost:8765`.
+- **Alpha Vantage Errors:** Check your API key (stored in the `.env` file) and your internet connection. If issues persist, more detailed error information may be available in the application's server-side logs (e.g., the console where you ran Streamlit).
 
 ---
 
