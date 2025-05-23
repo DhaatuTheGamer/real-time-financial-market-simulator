@@ -12,6 +12,7 @@ from market_simulator.data.alpha_vantage import AlphaVantage
 import asyncio
 import websockets
 import json
+import logging
 
 def run_websocket_client(uri, n_points=100):
     prices = []
@@ -60,7 +61,8 @@ def main():
             st.success(f"Fetched {len(av_data)} data points for {av_symbol}")
             st.line_chart(av_data['Close'])
         except Exception as e:
-            st.error(f"Failed to parse Alpha Vantage data: {e}")
+            logging.error(f"Alpha Vantage data processing failed for symbol '{av_symbol}': {e}", exc_info=True)
+            st.error(f"An error occurred while fetching or processing data for symbol '{av_symbol}'. Please check the symbol or try again later. More details might be available in the server logs.")
 
     # Real-time price streaming (WebSocket)
     st.sidebar.header("Real-Time Streaming")
@@ -72,11 +74,17 @@ def main():
     ws_enabled = st.sidebar.checkbox("Visualize Real-Time WebSocket Prices")
     ws_uri = st.sidebar.text_input("WebSocket URI", value="ws://localhost:8765")
     n_points = st.sidebar.number_input("Points to Stream", value=100, min_value=1)
+
+    ALLOWED_WS_URIS = ["ws://localhost:8765", "wss://localhost:8765"]
+
     if ws_enabled and st.button("Start WebSocket Stream"):
-        st.info(f"Connecting to {ws_uri} and streaming {n_points} price points...")
-        prices = run_websocket_client(ws_uri, n_points)
-        st.line_chart(prices)
-        st.write(f"Received {len(prices)} streamed prices.")
+        if ws_uri in ALLOWED_WS_URIS:
+            st.info(f"Connecting to {ws_uri} and streaming {n_points} price points...")
+            prices = run_websocket_client(ws_uri, n_points)
+            st.line_chart(prices)
+            st.write(f"Received {len(prices)} streamed prices.")
+        else:
+            st.error(f"Invalid WebSocket URI: '{ws_uri}'. Only connections to 'localhost:8765' (ws:// or wss://) are allowed.")
 
     # Main simulation/backtest logic
     if st.button("Simulate/Run Backtest"):
